@@ -1,0 +1,22 @@
+# config.yaml
+
+server:
+  address: "localhost:8080"  # Example value, replace with actual server address
+
+database:
+  dns: "postgres://ronald:ronald@localhost/bookingdb?sslmode=disable"  # Example value, replace with actual DNS string
+
+queue:
+  address: "amqp://ronald:ronald@localhost:5672/"  # Example value, replace with actual queue address
+
+redis:
+  address: "localhost:6379"  # Example value, replace with actual Redis address
+  password: "ronald"  # Example value, replace with actual Redis password
+  db: 0  # Example value, replace with actual Redis database number
+
+jwt:
+  secret: "jwt_secret"  # Example value, replace with actual JWT secret
+  expireDuration: "24h"  # Example value, replace with actual expiration duration
+
+rateLimit:
+  requestsPerMinute: 60  # Example value, replace with actual rate limit

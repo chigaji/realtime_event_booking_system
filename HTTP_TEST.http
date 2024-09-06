@@ -1,0 +1,180 @@
+// #############################################################################
+// #                                                                           #
+// #   Copyright Ronald 2024 All Rights Reserved                              #
+// #                                                                           #
+// #############################################################################
+
+@endpoint=http://127.0.0.1:8080
+
+@TOKEN=""
+
+
+###########################################
+# create User
+###########################################
+
+POST {{endpoint}}/register  HTTP/1.1
+Content-Type: application/json
+
+{
+    "username": "minju",
+    "email": "minju@gmail.com",
+    "password": "minjuminju"
+}
+
+# researcher
+###########################################
+# Login User
+###########################################
+
+POST  {{endpoint}}/login HTTP/1.1
+Content-Type: application/json 
+# Authorization: Bearer {{TOKEN}}
+
+{
+    "username": "minju",
+    "email": "minju@gmail.com",
+    "password": "minjuminju"
+}
+
+POST  {{endpoint}}/login HTTP/1.1
+Content-Type: application/json 
+# Authorization: Bearer {{TOKEN}}
+
+{
+    "username": "researcher",
+    "email": "researcher@gmail.com",
+    "password": "researcherresearcher"
+}
+
+###########################################
+# Create event
+###########################################
+
+POST  {{endpoint}}/events HTTP/1.1
+Content-Type: application/json 
+# Authorization: Bearer {{TOKEN}}
+
+{
+    "name": "blockchain event",
+    "description": "Blockchain event101",
+    "total_tickets": 100,
+    "event_date": "2024-09-06T06:54:54.361Z" 
+}
+
+
+###########################################
+# Create event
+###########################################
+
+GET  {{endpoint}}/events HTTP/1.1
+Content-Type: application/json 
+# Authorization: Bearer {{TOKEN}}
+
+
+###
+# POST {{endpoint}}/register  HTTP/1.1
+# Content-Type: application/x-www-form-urlencoded
+
+#   &username=ronald
+#   &email=ronald@gmail.com
+#   &password=geeky
+
+
+
+###########################################
+# Login User
+###########################################
+
+POST  {{endpoint}}/mingles/update HTTP/1.1
+Content-Type: application/json 
+# Authorization: Bearer {{TOKEN}}
+
+{
+    "userId": "crypto_user1",
+    "amount": 1
+}
+
+####
+POST {{endpoint}}/sendtx HTTP/1.1
+Content-Type: application/json 
+# Authorization: Bearer {{TOKEN}}
+
+{
+    "userId": "crypto_user1",
+    "amount": 1
+}
+###
+GET {{endpoint}}/balance/dfdfdfdfdfdfd HTTP/1.1
+Content-Type: application/json 
+
+
+###########################################
+# CREATE TRANSACTION DATA
+###########################################
+POST  {{endpoint}}/api/transactions HTTP/1.1
+Content-Type: application/json 
+
+{
+  "userId": "41903c3a-145b-11ec-82a8-0242ac130003",
+  "uniqueIdentifier": "MGTN_1722933322536-41903c3a-eb3b555f",
+  "cryptoAmount": 0.5,
+  "from": "0x545B80aa1F39d6FB88e0819a9471c508E51735A3",
+  "minglePoints": 0,
+  "txHash": "0xa60fcbde3c6b5ac4d9305cb5693797e444d310585b33aa3105b9c1a3f7d8b9b7",
+  "transactionStatus": "pending"
+}
+
+###########################################
+# GENERATE UNIQUE IDENTIFIER
+###########################################
+POST  {{endpoint}}/unique-identifier HTTP/1.1
+Content-Type: application/json 
+
+{
+  "userId": "crypto_user1"
+}
+
+###########################################
+# CONFIRM TRANSACTION 
+###########################################
+POST  {{endpoint}}/confirm-transaction HTTP/1.1
+Content-Type: application/json 
+
+{
+  "userId": "crypto_user1",
+  "uniqueIdentifier": "MGTN_1723026161610-crypto_u-da781e2f"
+}
+
+
+###########################################
+# UPDATE TRANSACTION STATUS
+###########################################
+PUT  {{endpoint}}/api/transactions/ HTTP/1.1
+Content-Type: application/json 
+
+{
+  
+  "uniqueIdentifier": "MGTN_1722582547065-41903c3a-2eb2042e",
+  "transactionStatus": "confirmed"
+}
+
+
+###########################################
+# GET TRANSACTIONS BY UNIQUEIDENTIFIER
+###########################################
+GET  {{endpoint}}/api/transactions/identifier/MGTN_1723026161610-crypto_u-da781e2f HTTP/1.1
+Content-Type: application/json 
+
+###########################################
+# GET TRANSACTIONS BY TXHASH
+###########################################
+GET  {{endpoint}}/unique-identifier/0x50b5faf84ef7afa587700d946cbb2b4deafb84a3f559f7f3367d9206f6872612 HTTP/1.1
+Content-Type: application/json 
+
+###########################################
+# GET TRANSACTIONS BY ID
+###########################################
+GET  {{endpoint}}/api/transactions/66b1bb303abdb0f120b9f27f HTTP/1.1
+Content-Type: application/json 
+
