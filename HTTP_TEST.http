@@ -6,7 +6,7 @@
 
 @endpoint=http://127.0.0.1:8080
 
-@TOKEN=""
+@TOKEN=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6InJvbmFsZCIsImV4cCI6MTcyNTk1MjA0NH0.JkjDfEJpY-4qNritSlQ5yDDSqpk-sF0Pj09MQ1pIy-M
 
 
 ###########################################
@@ -17,10 +17,16 @@ POST {{endpoint}}/register  HTTP/1.1
 Content-Type: application/json
 
 {
-    "username": "minju",
-    "email": "minju@gmail.com",
-    "password": "minjuminju"
+    "username": "ronald",
+    "email": "ronald@gmail.com",
+    "password": "ronaldronald"
 }
+
+# {
+#     "username": "minju",
+#     "email": "minju@gmail.com",
+#     "password": "minjuminju"
+# }
 
 # researcher
 ###########################################
@@ -32,20 +38,18 @@ Content-Type: application/json
 # Authorization: Bearer {{TOKEN}}
 
 {
-    "username": "minju",
-    "email": "minju@gmail.com",
-    "password": "minjuminju"
+    "username": "ronald",
+    "email": "ronald@gmail.com",
+    "password": "ronaldronald"
 }
 
-POST  {{endpoint}}/login HTTP/1.1
-Content-Type: application/json 
-# Authorization: Bearer {{TOKEN}}
+# {
+#     "username": "minju",
+#     "email": "minju@gmail.com",
+#     "password": "minjuminju"
+# }
 
-{
-    "username": "researcher",
-    "email": "researcher@gmail.com",
-    "password": "researcherresearcher"
-}
+
 
 ###########################################
 # Create event
@@ -53,14 +57,40 @@ Content-Type: application/json
 
 POST  {{endpoint}}/events HTTP/1.1
 Content-Type: application/json 
-# Authorization: Bearer {{TOKEN}}
+Authorization: Bearer {{TOKEN}}
 
 {
-    "name": "blockchain event",
+    "name": "blockchain event3",
     "description": "Blockchain event101",
     "total_tickets": 100,
-    "event_date": "2024-09-06T06:54:54.361Z" 
+    "event_date": "2024-09-09T06:54:54.361Z" 
 }
+
+
+###########################################
+# CREATE BOOKING
+###########################################
+
+POST  {{endpoint}}/book HTTP/1.1
+Content-Type: application/json 
+Authorization: Bearer {{TOKEN}}
+
+{
+    "user_id": 2,
+    "event_id": 3,
+    "quantity": 50
+}
+
+###########################################
+# Get events
+###########################################
+
+GET  {{endpoint}}/events HTTP/1.1
+Content-Type: application/json 
+Authorization: Bearer {{TOKEN}}
+
+
+
 
 
 ###########################################

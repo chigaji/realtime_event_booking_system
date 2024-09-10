@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"encoding/json"
+	"fmt"
 	"time"
 
 	"github.com/chigaji/realtime_event_booking_system/internal/models"
@@ -32,7 +33,7 @@ func (s *EventService) GetEvents(ctx context.Context) ([]models.Event, error) {
 	}
 
 	//if not get events from the db
-	rows, err := s.db.QueryContext(ctx, "SELECT id, name, total_tickets, booked_tickets FROM events")
+	rows, err := s.db.QueryContext(ctx, "SELECT id, name, description, total_tickets, booked_tickets, event_date, created_at FROM events")
 
 	if err != nil {
 		return nil, err
@@ -42,7 +43,7 @@ func (s *EventService) GetEvents(ctx context.Context) ([]models.Event, error) {
 
 	for rows.Next() {
 		var e models.Event
-		if err = rows.Scan(&e.ID, &e.TotalTickets, &e.BookedTickets); err != nil {
+		if err = rows.Scan(&e.ID, &e.Name, &e.Description, &e.TotalTickets, &e.BookedTickets, &e.EventDate, &e.CreatedAt); err != nil {
 			return nil, err
 		}
 		events = append(events, e)
@@ -57,7 +58,13 @@ func (s *EventService) GetEvents(ctx context.Context) ([]models.Event, error) {
 
 func (s *EventService) CreateEvent(event *models.Event) error {
 
-	_, err := s.db.Exec("INSERT INTO events (name, total_tickets, booked_tickets) VALUES($1, $2, 0)", event.Name, event.TotalTickets)
+	// See if this event is allready saved in the db
+	var existingEvent models.Event
+	err := s.db.QueryRow("SELECT id FROM events WHERE name = $1", event.Name).Scan(&existingEvent.ID)
+	if err == nil {
+		return fmt.Errorf("event already exists")
+	}
+	_, err = s.db.Exec("INSERT INTO events (name, description, total_tickets, event_date) VALUES($1, $2, $3, $4)", event.Name, event.Description, event.TotalTickets, event.EventDate)
 	if err != nil {
 		return err
 	}

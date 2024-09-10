@@ -39,6 +39,24 @@ func NewMiddleware(redis *redis.Client, logger *zap.Logger, config *config.Confi
 
 }
 
+func GenerateJWTToken(username string) (string, error) {
+
+	expirationTime := time.Now().Add(time.Minute * 60)
+
+	claims := Claims{
+		Username: username,
+		RegisteredClaims: jwt.RegisteredClaims{
+			ExpiresAt: jwt.NewNumericDate(expirationTime),
+		},
+	}
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
+	tokenString, err := token.SignedString(jwtKey)
+	if err != nil {
+		return "", err
+	}
+	return tokenString, nil
+}
+
 func (m *Middleware) Authenticate(next http.HandlerFunc) http.HandlerFunc {
 
 	return func(w http.ResponseWriter, r *http.Request) {
@@ -54,8 +72,13 @@ func (m *Middleware) Authenticate(next http.HandlerFunc) http.HandlerFunc {
 			return
 		}
 
-		claims := Claims{}
-		token, err := jwt.ParseWithClaims(bearerToken[1], claims, func(t *jwt.Token) (interface{}, error) {
+		claims := &Claims{}
+		tokenString := bearerToken[1]
+
+		token, err := jwt.ParseWithClaims(tokenString, claims, func(token *jwt.Token) (interface{}, error) {
+			if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
+				return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
+			}
 			return jwtKey, nil
 		})
 
@@ -64,7 +87,8 @@ func (m *Middleware) Authenticate(next http.HandlerFunc) http.HandlerFunc {
 				http.Error(w, "Invalid token signature", http.StatusUnauthorized)
 				return
 			}
-			http.Error(w, "Bad Request", http.StatusBadRequest)
+			fmt.Println(err)
+			http.Error(w, err.Error(), http.StatusBadRequest)
 			return
 		}
 
@@ -73,27 +97,11 @@ func (m *Middleware) Authenticate(next http.HandlerFunc) http.HandlerFunc {
 			return
 		}
 
-		r.WithContext(jwt.NewContext())
-		r = r.WithContext(r.Context(), token)
-		next(w, r)
-		// token, err := jwt.Parse(bearerToken[1], func(token *jwt.Token) (interface{}, error) {
-		// 	if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
-		// 		return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
-		// 	}
-		// 	return []byte(m.config.JWT.Secret), nil
-		// })
+		// fmt.Println("claims --->", token.Claims)
 
-		// if err != nil {
-		// 	http.Error(w, "Invalid token", http.StatusUnauthorized)
-		// 	return
-		// }
+		ctx := context.WithValue(r.Context(), userClaimKey, claims)
 
-		// if claims, ok := token.Claims.(jwt.MapClaims); ok && token.Valid {
-		// 	ctx := context.WithValue(r.Context(), "user", claims)
-		// 	next.ServeHTTP(w, r.WithContext(ctx))
-		// } else {
-		// 	http.Error(w, "Invalid token claims", http.StatusUnauthorized)
-		// }
+		next.ServeHTTP(w, r.WithContext(ctx))
 	}
 }
 
@@ -123,7 +131,10 @@ func (m *Middleware) RateLimit(next http.HandlerFunc) http.HandlerFunc {
 	}
 }
 
-func getUserIDFromContext(ctx context.Context) int {
-	user := ctx.Value("user").(jwt.MapClaims)
-	return int(user["id"].(float64))
+func getUserIDFromContext(ctx context.Context) jwt.Claims {
+	user, ok := ctx.Value(userClaimKey).(*Claims)
+	if !ok {
+		return nil
+	}
+	return user
 }

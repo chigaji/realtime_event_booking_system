@@ -5,6 +5,7 @@ import (
 	"database/sql"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"log"
 
 	"github.com/chigaji/realtime_event_booking_system/internal/config"
@@ -119,6 +120,7 @@ func ProcessBooking(db *sql.DB, redisClient *redis.Client, booking models.Bookin
 	var availableTickets int
 	err = tx.QueryRow("SELECT total_tickets - booked_tickets FROM events WHERE id = $1 FOR UPDATE", booking.EventID).Scan(&availableTickets)
 	if err != nil {
+		fmt.Println("error 1")
 		return err
 	}
 
@@ -129,12 +131,14 @@ func ProcessBooking(db *sql.DB, redisClient *redis.Client, booking models.Bookin
 	// book the ticket
 	_, err = tx.Exec("UPDATE events SET booked_tickets = booked_tickets +$1 WHERE id = $2", booking.Quantity, booking.EventID)
 	if err != nil {
+		fmt.Println("error 2")
 		return err
 	}
 
 	// insert booking record
-	err = tx.QueryRow("INSERT INTO bookings (user_id, event_id, quantity) VALUES ($1, $2, $3) RETURNING id", booking.UserID, booking.EventID).Scan(&booking.ID)
+	err = tx.QueryRow("INSERT INTO bookings (user_id, event_id, quantity) VALUES ($1, $2, $3) RETURNING id", booking.UserID, booking.EventID, booking.Quantity).Scan(&booking.ID)
 	if err != nil {
+		fmt.Println("error 3")
 		return err
 	}
 

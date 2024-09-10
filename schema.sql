@@ -29,7 +29,7 @@ CREATE TABLE Bookings (
     user_id INT NOT NULL,  -- Foreign key referencing the Users table
     event_id INT NOT NULL,  -- Foreign key referencing the Events table
     quantity INT NOT NULL,
-    created_at TIMESTAMP NOT NULL,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (user_id) REFERENCES Users(id) ON DELETE CASCADE,  -- Cascade delete when the user is deleted
     FOREIGN KEY (event_id) REFERENCES Events(id) ON DELETE CASCADE  -- Cascade delete when the event is deleted
 );

@@ -20,6 +20,7 @@ type BookingHandler struct {
 	db    *sql.DB
 	redis *redis.Client
 	queue *queue.Queue
+	// bookingService *services.BookingService
 }
 
 func NewBookingHandler(db *sql.DB, redis *redis.Client, queue *queue.Queue) *BookingHandler {
@@ -56,7 +57,8 @@ func (h *BookingHandler) BookTicket(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Failed to process Booking", http.StatusInternalServerError)
 		return
 	}
-
+	// ToDO: call here to start processing the booking
+	// h.queue.StartBookingWorker(h.db, h.redis)
 	w.WriteHeader(http.StatusAccepted)
 	json.NewEncoder(w).Encode(map[string]string{"message": "Booking request accepted and queued for processing"})
 }

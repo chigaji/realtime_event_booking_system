@@ -5,10 +5,23 @@ import (
 	"encoding/json"
 	"net/http"
 
+	"github.com/chigaji/realtime_event_booking_system/internal/middleware"
 	"github.com/chigaji/realtime_event_booking_system/internal/models"
 	"github.com/chigaji/realtime_event_booking_system/pkg/validator"
+	"github.com/golang-jwt/jwt/v5"
 	"golang.org/x/crypto/bcrypt"
 )
+
+type contextKey string
+
+const userClaimKey contextKey = "userClaim"
+
+var jwtKey = []byte("secreteKey")
+
+type Claims struct {
+	Username string `json:"username"`
+	jwt.RegisteredClaims
+}
 
 type AuthHandler struct {
 	db *sql.DB
@@ -43,9 +56,15 @@ func (h *AuthHandler) Login(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Generate and return JWT token here
+	tokenString, err := middleware.GenerateJWTToken(storedUser.Username)
+	if err != nil {
+		http.Error(w, "Error Generating JWT token", http.StatusInternalServerError)
+		return
+	}
 
+	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
-	json.NewEncoder(w).Encode(map[string]string{"message": "Login successful"})
+	json.NewEncoder(w).Encode(map[string]string{"message": "Login successful", "Token": tokenString})
 }
 
 func (h *AuthHandler) Register(w http.ResponseWriter, r *http.Request) {
